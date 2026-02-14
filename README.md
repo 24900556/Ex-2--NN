@@ -1,10 +1,9 @@
-<H3>Name</H3>
-<H3>Register no.</H3>
-<H3>Date</H3>
+<H3>Name : MADHUMITHA R R</H3>
+<H3>Register no : 212224240083</H3>
+<H3>Date : 14.02.2026</H3>
 <H3>Experiment No. 2 </H3>
 
 ## Implementation of Perceptron for Binary Classification
-
 # AIM:
 To implement a perceptron for classification using Python<BR>
 
@@ -51,11 +50,96 @@ STEP 9:For ‘N ‘ iterations ,do the following:<BR>
 STEP 10:Plot the error for each iteration <BR>
 STEP 11:Print the accuracy<BR>
 # PROGRAM:
-    ''' Insert your code here '''
+```python
+#mport libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+#Define Perceptron class
+class Perceptron:
+    def __init__(self, learning_rate=0.1):
+        self.learning_rate = learning_rate
+        self._b = 0.0  # bias
+        self._w = None # weights
+        self.errors_per_epoch = []
+
+    def fit(self, X, y, n_iter=10):
+        self._w = np.zeros(X.shape[1])
+        self._b = 0.0
+        self.errors_per_epoch = []
+
+        for _ in range(n_iter):
+            errors = 0
+            for xi, target in zip(X, y):
+                update = self.learning_rate * (target - self.predict(xi))
+                self._w += update * xi
+                self._b += update
+                errors += int(update != 0.0)
+            self.errors_per_epoch.append(errors)
+
+    def f(self, X):
+        return np.dot(X, self._w) + self._b
+
+    def predict(self, X):
+        return np.where(self.f(X) >= 0, 1, -1)
+
+#Load dataset
+df = pd.read_csv("/content/Iris.csv")  # update path if needed
+print("First 5 rows:\n", df.head())
+print()
+
+#Use only 2 classes (Setosa & Versicolor) and 2 features for visualization
+df = df[df['Species'].isin(['Iris-setosa', 'Iris-versicolor'])]
+X = df.iloc[:, [0, 2]].values  # SepalLengthCm, PetalLengthCm
+y = df['Species'].values
+y = np.where(y == 'Iris-setosa', 1, -1)
+
+#Plot data
+plt.scatter(X[:50,0], X[:50,1], color='orange', marker='o', label='Setosa')
+plt.scatter(X[50:100,0], X[50:100,1], color='blue', marker='x', label='Versicolor')
+plt.xlabel("Sepal length")
+plt.ylabel("Petal length")
+plt.legend(loc='upper left')
+plt.show()
+print()
+
+#Feature scaling
+X[:,0] = (X[:,0] - X[:,0].mean()) / X[:,0].std()
+X[:,1] = (X[:,1] - X[:,1].mean()) / X[:,1].std()
+
+#Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+
+#Train Perceptron
+classifier = Perceptron(learning_rate=0.01)
+classifier.fit(X_train, y_train)
+
+#Evaluate
+y_pred = classifier.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print("Test Accuracy:", accuracy*100, "%")
+
+#Plot errors per epoch
+plt.plot(range(1, len(classifier.errors_per_epoch)+1), classifier.errors_per_epoch, marker='o')
+plt.xlabel('Epoch')
+plt.ylabel('Number of misclassifications')
+plt.title('Perceptron Training Errors')
+plt.show()
+
+```
 
 # OUTPUT:
 
-    ''' Show your result '''
+<img width="762" height="182" alt="Screenshot 2025-09-17 181914" src="https://github.com/user-attachments/assets/0ed79a93-8dac-45b6-8b7a-b28ce5e2889f" />
+<br><br>
+<img width="700" height="500" alt="Screenshot 2025-09-17 181928" src="https://github.com/user-attachments/assets/d66b7bdf-14ed-40ad-a2a2-b03dc7e373d8" />
+<br><br>
+
+<img width="700" height="500" alt="Screenshot 2025-09-17 181937" src="https://github.com/user-attachments/assets/bba281c8-cbf2-4273-8446-19036008a828" />
+
 
 # RESULT:
  Thus, a single layer perceptron model is implemented using python to classify Iris data set.
